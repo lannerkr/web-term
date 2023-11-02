@@ -36,20 +36,11 @@ type SessionID struct {
 var sessionSEED []byte = []byte("a very very very very secret key")
 
 func getConfig(result *Group) {
-	// jsonFile, err := os.Open("/usr/local/witty/config/sessionconf.json")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// fmt.Println("seccessfully opened sessionconfig.json")
-	// defer jsonFile.Close()
 
 	byteValue, _ := os.ReadFile("/usr/local/witty/config/sessionconf.json")
-	//fmt.Println(byteValue)
 
-	//var resultn map[string]interface{}
 	json.Unmarshal(byteValue, &result)
 
-	//fmt.Println(result)
 }
 
 func encrypt(text []byte) ([]byte, error) {
