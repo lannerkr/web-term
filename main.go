@@ -14,6 +14,9 @@ import (
 	"lannerkr/witty/web"
 )
 
+// https://github.com/lannerkr/web-term
+// version 1.1
+
 const (
 	// subcmds = "witty (adduser|deluser|listusers|replay|merge|run)"
 	subcmds = "witty (adduser|deluser|listusers|run)"
