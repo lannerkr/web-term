@@ -16,6 +16,7 @@ import (
 
 // https://github.com/lannerkr/web-term
 // version 1.1
+// firt build and git sync
 
 const (
 	// subcmds = "witty (adduser|deluser|listusers|replay|merge|run)"
