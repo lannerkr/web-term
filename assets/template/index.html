@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" type="image/x-icon" href="/assets/img/logo.svg ">
+
+  <title>Web Terminal</title>
+
+  <!-- Bootstrap core CSS -->
+  <script src="/assets/external/bootstrap.min.js"></script>
+  <link href="/assets/external/bootstrap.min.css" rel="stylesheet">
+  <link href="/assets/main.css" rel="stylesheet">
+
+  <style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+    
+    *{
+        list-style: none;
+        text-decoration: none;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Open Sans', sans-serif;
+    }
+    
+    body{
+        background: #f5f6fa;
+    }
+    
+    .wrapper .sidebar{
+        background: rgb(5, 68, 104);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 225px;
+        height: 100%;
+        padding: 20px 0;
+        transition: all 0.5s ease;
+    }
+    
+    .wrapper .sidebar ul li a{
+        display: block;
+        padding: 13px 30px;
+        border-bottom: 1px solid #10558d;
+        color: rgb(241, 237, 237);
+        font-size: 16px;
+        position: relative;
+    }
+    
+    .wrapper .sidebar ul li a .icon{
+        color: #dee4ec;
+        width: 30px;
+        display: inline-block;
+    }
+    
+    .wrapper .sidebar ul li a:hover,
+    .wrapper .sidebar ul li a.active{
+        color: #0c7db1;
+    
+        background:white;
+        border-right: 2px solid rgb(5, 68, 104);
+    }
+    
+    .wrapper .sidebar ul li a:hover .icon,
+    .wrapper .sidebar ul li a.active .icon{
+        color: #0c7db1;
+    }
+    
+    .wrapper .sidebar ul li a:hover:before,
+    .wrapper .sidebar ul li a.active:before{
+        display: block;
+    }
+    
+    .wrapper .section{
+        width: calc(100% - 225px);
+        margin-left: 225px;
+        transition: all 0.5s ease;
+    }
+    
+    .wrapper .section .top_navbar{
+        background: rgb(7, 105, 185);
+        height: 50px;
+        display: flex;
+        align-items: center;
+        padding: 0 30px;
+    
+    }
+
+/* Set a style for the submit button */
+.btn {
+  background: rgb(5, 68, 104);
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+.btn:hover {
+  opacity: 1;
+  color: #0c7db1;
+  background:white;
+  border-right: 2px solid rgb(5, 68, 104);
+}
+
+/* Dropdown Button */
+.dropbtn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #004e4e;
+  /* min-width: 160px; */
+  width: 90%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Set a style for the submit button */
+.btndrop {
+  /* display: none; */
+  /* position: absolute; */
+  background-color: #004e4e;
+  width: 100%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+
+  color: white;
+  padding: 15px 20px;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.btndrop:hover {
+  opacity: 1;
+  color: #0c7db1;
+  background:white;
+  border-right: 2px solid rgb(5, 68, 104);
+}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+.clicked {opacity: 1;}
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="wrapper" name="homeframe">
+
+  <header>
+    <nav class="navbar navbar-dark shadow-sm navbar-xs" style="background-color: #002f55;">
+      <div class="container-fluid">
+        <a class="navbar-brand mx-auto" style="margin-right: 0.5rem;" height="24">
+          WiTTY: Web-based SSH
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="sidebar">
+     <ul>
+         <li>
+             <a class="active">
+                 <span class="icon"><i class="fas fa-home"></i></span>
+                 <span class="item">Home</span>
+             </a>
+         </li>
+
+         {{$newCsrf := .csrfField}}
+         {{range $i, $g := .groups}}
+         <li>
+          <div class="dropdown">
+            <button onclick="myFunction({{$i}})" class="btn">{{.Gname}}</button>
+            <div id="myDropdown{{$i}}" class="dropdown-content">
+              {{range .Sessions}}
+              <div>
+                <form action="/new/{{.Name}}" method="post" target="_blank" onsubmit="setTimeout(function(){refresh(true)}, 1000)">
+                  {{$newCsrf}}
+                  <button type="submit" class="btndrop">{{.Name}}</button>
+                </form>
+              </div>
+              {{end}}
+            </div>
+          </div>
+         </li>
+         {{end}}
+
+         <li>
+            <form action="/new" method="post" target="_blank" onsubmit="setTimeout(function(){refresh(true)}, 1000)">
+              {{.csrfField}}
+              <button type="submit" class="btn">localhost</button>
+            </form>
+         </li>
+     </ul>
+
+     <ul>
+         <li>
+             <a href="#" class="active">
+                 <span class="icon"><i class="fas fa-home"></i></span>
+                 <span class="item">Control</span>
+             </a>
+         </li>
+
+         <li>
+            <form action="/conf2:newsess" method="get">
+              <button type="submit" class="btn">New Session</button>
+            </form>
+         </li>
+         <li>
+          <form action="/conf2" method="get">
+            <button type="submit" class="btn">Config</button>
+          </form>
+         </li>
+         <li>
+             <form action="/logout" method="get">
+              <button type="submit" class="btn">Logout</button>
+            </form>
+         </li>
+
+     </ul>
+
+ </div>
+
+
+  <!-- <main> -->
+    <div class="container-fluid section" style="margin-top:2em;">
+      <ul class="nav nav-tabs" id="js_sucks" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link bg-light active" id="interactive-tab" data-bs-toggle="tab"
+            data-bs-target="#interactive-cnt" type="button" role="tab" aria-controls="interactive-cnt"
+            aria-selected="true"><img src="/assets/img/keyboard.svg" style="margin-right: 0.5rem;" height="18px">Live
+            Sessions</button>
+        </li>
+      </ul>
+
+      <div class="tab-content border border-info rounded-bottom" id="nav-tabContent">
+      </div>
+    </div>
+
+  </div>
+  <script>
+    var active_tab = 0
+
+    window.addEventListener("click",()=>{
+      //console.log('wow')
+      if (!event.target.matches('.btndrop')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          //console.log("dropN: "+i )
+          //console.log(openDropdown.classList)
+          if (openDropdown.classList.contains('show')) {
+            if (openDropdown.classList.contains('clicked')) {
+              //console.log("dropN: "+i+" opendropdown contain clicked")
+              openDropdown.classList.remove('clicked');
+            }
+            else {
+              //console.log("dropN: "+i+" opendropdown contain show")
+              openDropdown.classList.remove('show');
+            }
+          }
+          //console.log(openDropdown.classList)
+        }
+      }
+    });
+// Close the dropdown menu if the user clicks outside of it
+// window.onclick = function(event) {
+//   console.log("onclick")
+//   if (!event.target.matches('.btndrop')) {
+//     console.log("event target not matches btndrop")
+//     var dropdowns = document.getElementsByClassName("dropdown-content");
+//     console.log(dropdowns.length)
+//     var i;
+//     for (i = 0; i < dropdowns.length; i++) {
+//       var openDropdown = dropdowns[i];
+//       if (openDropdown.classList.contains('show')) {
+//         console.log("opendropdown contain show")
+//         openDropdown.classList.remove('show');
+//       }
+//     }
+//   }
+// }
+
+    function del_btn(path) {
+      let formData = new FormData()
+      formData.append('gorilla.csrf.Token', {{.csrfToken}})
+
+      fetch("/delete/" + path, {
+        method: "POST",
+        body: formData,
+      })
+      setTimeout(function () {
+        refresh(true)
+      }, 20);
+    }
+
+    // fresh the page every 10 seconds, in case active sessions are closed.
+    function refresh(once) {
+      tabs = document.getElementById("nav-tabContent")
+      fetch("/update/" + active_tab)
+        .then((response) => {
+          return response.text();
+        })
+        .then((result) => {
+          tabs.innerHTML = result;
+        });
+
+      if (once == false) {
+        setTimeout(function () {
+          refresh(false)
+        }, 8000);
+      }
+    }
+
+    refresh(false)
+
+    var itab = document.querySelector('#interactive-tab')
+    itab.addEventListener('shown.bs.tab', function (event) {
+      active_tab = 0
+    })
+
+    var stab = document.querySelector('#saved-tab')
+    stab.addEventListener('shown.bs.tab', function (event) {
+      active_tab = 1
+    })
+
+
+    var renameModal = document.getElementById('renameModal')
+
+    renameModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget // which button lunched this modal
+      var file = button.getAttribute('data-bs-whatever')
+      var modalTitle = renameModal.querySelector('.col-form-label')
+      modalTitle.textContent = file
+    })
+
+    function rename_btn() {
+      var modalTitle = renameModal.querySelector('.col-form-label')
+      var modalInput = renameModal.querySelector('.form-control')
+      var newName = modalInput.value.trim()
+
+      if (newName == "") {
+        console.log("New name is empty, ignore request")
+        return
+      }
+
+      path = "/rename/" + modalTitle.textContent + "/" + newName
+
+      let formData = new FormData()
+      formData.append('gorilla.csrf.Token', {{.csrfToken}})
+
+      fetch(path, {
+        method: "POST",
+        body: formData,
+      })
+      setTimeout(function () {
+        refresh(true)
+      }, 20);
+    }
+
+/* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function myFunction(id) {
+  // console.log("myFunction call")
+  // var dropdowns = document.getElementsByClassName("dropdown-content");
+  // console.log(dropdowns.length)
+  // var i;
+  //   for (i = 0; i < dropdowns.length; i++) {
+  //     var openDropdown = dropdowns[i];
+  //     if (openDropdown.classList.contains('show')) {
+  //       console.log("number"+i)
+  //       console.log("opendropdown contain show")
+  //       // openDropdown.classList.remove('show');
+  //     }
+  //   }
+
+
+
+  param = "myDropdown"+id
+  //console.log(document.getElementById(param).classList)
+  if (document.getElementById(param).classList.contains('show')) {
+    document.getElementById(param).classList.toggle("show");
+  }
+  else {
+    document.getElementById(param).classList.toggle("show");
+    document.getElementById(param).classList.toggle("clicked");
+  }
+
+  //console.log(document.getElementById(param).classList)
+}
+
+
+
+
+
+  </script>
+
+</body>
+
+</html>

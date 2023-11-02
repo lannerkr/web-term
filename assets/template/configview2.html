@@ -1,0 +1,317 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/x-icon" href="/assets/img/logo.svg">
+
+  <link rel="stylesheet" href="/assets/external/xterm.css" />
+  <link href="/assets/external/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/main.css" />
+
+  <title>JSON TREE VIEW TEST</title>
+
+  <style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+    
+    *{
+        list-style: none;
+        text-decoration: none;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Open Sans', sans-serif;
+    }
+    
+    body{
+        background: #f5f6fa;
+    }
+
+    .wrapper .sidebar{
+        background: rgb(5, 68, 104);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 225px;
+        height: 100%;
+        padding: 20px 0;
+        transition: all 0.5s ease;
+    }
+    
+    .wrapper .sidebar ul li a{
+        display: block;
+        padding: 13px 30px;
+        border-bottom: 1px solid #10558d;
+        color: rgb(241, 237, 237);
+        font-size: 16px;
+        position: relative;
+    }
+    
+    .wrapper .sidebar ul li a .icon{
+        color: #dee4ec;
+        width: 30px;
+        display: inline-block;
+    }
+    
+    .wrapper .sidebar ul li a:hover,
+    .wrapper .sidebar ul li a.active{
+        color: #0c7db1;
+    
+        background:white;
+        border-right: 2px solid rgb(5, 68, 104);
+    }
+    
+    .wrapper .sidebar ul li a:hover .icon,
+    .wrapper .sidebar ul li a.active .icon{
+        color: #0c7db1;
+    }
+    
+    .wrapper .sidebar ul li a:hover:before,
+    .wrapper .sidebar ul li a.active:before{
+        display: block;
+    }
+    
+    .wrapper .section{
+      /* border: 1px solid #db1919; */
+        width: calc(100% - 225px);
+        height: calc(100% - 70px);
+        margin-top: 50px;
+        margin-left: 225px;
+        transition: all 0.5s ease;
+    }
+
+    .wrapper .section .inframe{
+        /* background: white; */
+        /* border: 1px solid #10558d; */
+        display: block;
+        /* height: 800px;
+        width: 800px; */
+        height: calc(100vh - 120px);
+        width: calc(100vw - 300px);
+        margin-left: 30px;
+        align-items: center;
+        /* padding: 0 30px; */
+    }
+    /* .wrapper .section .inframe{
+      position: fixed;
+      background: white;
+      border: none;
+      top: 30; right: 225;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 100%;
+    } */
+
+/* Set a style for the submit button */
+.btn {
+  background: rgb(5, 68, 104);
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+.btn:hover {
+  opacity: 1;
+  color: #0c7db1;
+  background:white;
+  border-right: 2px solid rgb(5, 68, 104);
+}
+
+/* Dropdown Button */
+.dropbtn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #004e4e;
+  /* min-width: 160px; */
+  width: 90%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Set a style for the submit button */
+.btndrop {
+  /* display: none; */
+  /* position: absolute; */
+  background-color: #004e4e;
+  width: 100%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+
+  color: white;
+  padding: 15px 20px;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.btndrop:hover {
+  opacity: 1;
+  color: #0c7db1;
+  background:white;
+  border-right: 2px solid rgb(5, 68, 104);
+}
+
+.btndrop .sub1 {
+  width: 70%;
+}
+.btndrop .sub2 {
+  width: 30%;
+}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+.clicked {opacity: 1;}
+
+  </style>
+
+</head>
+
+<body>
+
+
+
+    <div class="wrapper">
+
+    <header>
+        <nav class="navbar navbar-light bg-light shadow-sm navbar-xs">
+          <div class="container-fluid">
+            <a class="navbar-brand mx-auto" href="/" target="_self">
+              <img src="/assets/img/logo.svg" style="margin-right: 0.5rem;" height="32"
+                class="d-inline-block align-text-top">
+                JSON TREE VIEW TEST
+            </a>
+            <!-- <button type="button" id="record_onoff" class="btn btn-primary btn-sm float-end" value="Record"
+              onclick="recordOnOff()">Record</button> -->
+          </div>
+        </nav>
+    </header>
+
+    <div class="sidebar">
+        <ul>
+          <li>
+            <a href="/conf" class="active" target="insideframe">
+                <span class="icon"><i class="fas fa-home"></i></span>
+                <span class="item">HOME</span>
+            </a>
+          </li>
+   
+            {{range $i, $g := .groups}}
+            <li>
+             <div class="dropdown">
+               <button onclick="myFunction({{$i}})" class="btn">{{.Gname}}</button>
+               <div id="myDropdown{{$i}}" class="dropdown-content">
+                 {{range .Sessions}}
+                 <div>
+                   <form action="/editSession/{{.Id.Gid}}/{{.Id.Sid}}" method="get" target="insideframe" onsubmit="setTimeout(function(){refresh(true)}, 1000)">
+                     <button type="submit" class="btndrop">{{.Name}}</button>
+                   </form>
+                 </div>
+                 {{end}}
+               </div>
+             </div>
+            </li>
+            {{end}}
+        </ul>
+   
+        <ul>
+            <li>
+                <a href="#" class="active">
+                    <span class="icon"><i class="fas fa-home"></i></span>
+                    <span class="item">Control</span>
+                </a>
+            </li>
+   
+            <li>
+               <form action="/newSess" method="get" target="insideframe">
+                 <button type="submit" class="btn">New Session</button>
+               </form>
+            </li>
+            <li>
+                <form action="/" method="get">
+                 <button type="submit" class="btn">Cancle</button>
+               </form>
+            </li>
+        </ul>
+    </div>
+
+    <div class="section">
+
+      {{if eq .inframe ":newsess"}}
+      <iframe class="inframe" name="insideframe" src="/newSess" title="description"></iframe>
+      {{else}}
+      <iframe class="inframe" name="insideframe" src="/conf" title="description"></iframe>
+      {{end}}
+    </div>
+
+    <!-- <div class="container-fluid section" style="margin-top:2em;">
+        <ul class="nav nav-tabs" id="js_sucks" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link bg-light active" id="interactive-tab" data-bs-toggle="tab"
+              data-bs-target="#interactive-cnt" type="button" role="tab" aria-controls="interactive-cnt"
+              aria-selected="true"><img src="/assets/img/keyboard.svg" style="margin-right: 0.5rem;" height="18px">Live
+              Sessions</button>
+          </li>
+        </ul>
+        <div class="tab-content border border-info rounded-bottom" id="nav-tabContent">
+        </div>
+    </div> -->
+
+    </div>
+  </body>
+
+<script>
+    window.addEventListener("click",()=>{
+      if (!event.target.matches('.btndrop')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+            if (openDropdown.classList.contains('clicked')) {
+              openDropdown.classList.remove('clicked');
+            }
+            else {
+              openDropdown.classList.remove('show');
+            }
+          }
+        }
+      }
+    });
+
+    /* When the user clicks on the button,
+    toggle between hiding and showing the dropdown content */
+    function myFunction(id) {
+
+    param = "myDropdown"+id
+
+    if (document.getElementById(param).classList.contains('show')) {
+        document.getElementById(param).classList.toggle("show");
+    }
+    else {
+        document.getElementById(param).classList.toggle("show");
+        document.getElementById(param).classList.toggle("clicked");
+    }
+
+    }
+
+</script>
+</html>

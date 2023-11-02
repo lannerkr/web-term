@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+ 
+<head>
+ <link rel="stylesheet" href="/assets/external/fontello.css">
+  <style>
+	.session{
+      text-decoration: none;
+      color:#393939;
+	}
+    .session, .session ul{
+      list-style: none;
+      padding-left:17px;
+    }
+    .session *:before{
+      width:17px;
+      height:17px;
+      display:inline-block;
+    }
+    .session .a2{
+      cursor: pointer;
+    }
+    .session .a2:before{
+      content:'\f115';
+      font-family: fontello;
+    }
+    .session .c1[type="checkbox"] {
+      display: none;
+    }
+	.session .c1[type="checkbox"]:checked~ul {
+      display: none;
+    }
+    .session .c1[type="checkbox"]:checked+label:before{
+      content:'\f114';
+      font-family: fontello;
+    }
+    .session .a1{
+      text-decoration: none;
+      color:#393939;
+    }
+    .session .a1:before{
+      content:'\e800';
+      font-family: fontello;
+    }
+    .session .c2[type="checkbox"] {
+      display: none;
+    }
+	.session .c2[type="checkbox"]:checked~ul {
+      display: none;
+    }
+    .session .c2[type="checkbox"]:checked+label:before{
+      content:'\f196';
+      font-family: fontello;
+    }
+    .session .a3{
+      cursor: pointer;
+    }
+    .session .a3:before{
+      content:'\f147';
+      font-family: fontello;
+    }
+  </style>
+</head>
+ 
+<body>
+  <ul class="session">
+    <li>
+      <input class="c1" type="checkbox" id="Sessions">
+      <label class="a2" for="Sessions">Sessions</label>
+      <ul>
+
+        {{range .group}}
+        <li>
+            <input class="c1" type="checkbox" id="{{.Gname}}">
+            <label class="a2" for="{{.Gname}}">{{.Gname}}</label>
+            {{range .Sessions}}
+            <ul>
+                
+                <input class="c2" type="checkbox" id="{{.Name}}" checked />
+                <label class="a3" for="{{.Name}}">{{.Name}}</label>
+                <ul>
+                    <li class="a1">HOST: {{.Host}} :{{.Port}}</li>
+                    <li class="a1">USER: {{.User}}</li>
+                    <li class="a1">PKEY: {{.KeyPath}}</li>
+                </ul>
+                
+            </ul>
+            {{end}}
+        </li>
+        {{end}}
+
+      </ul>
+    </li>
+  </ul>
+ 
+</body>
+ 
+</html>
