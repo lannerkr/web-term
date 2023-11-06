@@ -256,9 +256,9 @@
     <div class="section">
 
       {{if eq .inframe ":newsess"}}
-      <iframe class="inframe" name="insideframe" src="/newSess" title="description"></iframe>
+      <iframe class="inframe" name="insideframe" id="insideframe" src="/newSess" title="description"></iframe>
       {{else}}
-      <iframe class="inframe" name="insideframe" src="/conf" title="description"></iframe>
+      <iframe class="inframe" name="insideframe" id="insideframe" src="/conf" title="description"></iframe>
       {{end}}
     </div>
 
@@ -301,6 +301,7 @@
     toggle between hiding and showing the dropdown content */
     function myFunction(id) {
 
+    window.open("/editGroup/"+id, "insideframe");
     param = "myDropdown"+id
 
     if (document.getElementById(param).classList.contains('show')) {

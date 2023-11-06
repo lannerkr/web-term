@@ -99,6 +99,9 @@ func StartWeb(opt *Options) {
 	g1.GET("/editSession/:gid/:sid", editSessHandler)
 	g1.POST("/editSession/:gid/:sid", editSessPostHandler)
 	g1.POST("/editSession/:gid/:sid/del", editSessDelHandler)
+	g1.GET("/editGroup/:gid", editGrpHandler)
+	g1.POST("/editGroup/:gid", editGrpPostHandler)
+	g1.POST("/editGroup/:gid/del", editGrpDelHandler)
 
 	// start/stop recording the session
 	// g1.POST("/record/:id", startRecord)
@@ -340,5 +343,57 @@ func editSessHandler(c *gin.Context) {
 			"session":   session,
 			"gid":       gid,
 			"sid":       sid,
+		})
+}
+
+func editGrpPostHandler(c *gin.Context) {
+	gid, _ := strconv.Atoi(c.Param("gid"))
+
+	session := &NewSess{}
+	if err := c.Bind(session); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var result Group
+	getConfig(&result)
+	result.Groups[gid].Gname = session.Gname
+	jsonString, _ := json.Marshal(result)
+	os.WriteFile("/usr/local/witty/config/sessionconf.json", jsonString, os.ModePerm)
+
+	c.HTML(http.StatusOK, "redirectHome.html", nil)
+}
+func editGrpDelHandler(c *gin.Context) {
+	gid, _ := strconv.Atoi(c.Param("gid"))
+
+	var result Group
+	getConfig(&result)
+	result.Groups = append(result.Groups[:gid], result.Groups[gid+1:]...)
+	for i := 0; i < len(result.Groups); i++ {
+		for j := range result.Groups[i].Sessions {
+			result.Groups[i].Sessions[j].Id.Gid = i
+		}
+	}
+
+	jsonString, _ := json.Marshal(result)
+	os.WriteFile("/usr/local/witty/config/sessionconf.json", jsonString, os.ModePerm)
+
+	c.Redirect(http.StatusFound, "/conf2")
+}
+func editGrpHandler(c *gin.Context) {
+	gid, _ := strconv.Atoi(c.Param("gid"))
+	//sid, _ := strconv.Atoi(c.Param("sid"))
+	var result Group
+	getConfig(&result)
+	groupname := result.Groups[gid].Gname
+	sessions := result.Groups[gid].Sessions
+
+	c.HTML(http.StatusOK, "editGroup.html",
+		gin.H{
+			"csrfField": csrf.TemplateField(c.Request),
+			"csrfToken": csrf.Token(c.Request),
+			"group":     groupname,
+			"sessions":  sessions,
+			"gid":       gid,
 		})
 }

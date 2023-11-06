@@ -139,7 +139,7 @@ LOOP:
 			NEXT:
 				if len(options.CmdToExec) == 1 && options.CmdToExec[0] == "ssh-copy-id" {
 					//fmt.Printf("cmdtoexec len : %v\n", len(options.CmdToExec))
-					options.CmdToExec = []string{"ssh-copy-id", "-i", v.KeyPath, "-p", v.Port, v.User + "@" + v.Host}
+					options.CmdToExec = []string{"sudo", "-H", "-u", "lannerkr", "ssh-copy-id", "-i", v.KeyPath, "-p", v.Port, v.User + "@" + v.Host}
 					break LOOP
 				}
 				options.CmdToExec = []string{"sudo", "-H", "-u", "lannerkr", "ssh", "-l", v.User, "-p", v.Port, "-i", v.KeyPath, v.Host}
