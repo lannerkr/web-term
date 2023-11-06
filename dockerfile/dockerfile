@@ -1,0 +1,27 @@
+## ubnutu images for linux/amd64
+#FROM ubuntu:18.04
+
+## ubuntu images for linux/arm64
+FROM ubuntu:latest
+
+RUN \
+apt-get update && \
+apt-get install -y sudo ssh sshpass vim
+
+RUN useradd -s /bin/bash -d /home/lannerkr -m -G sudo lannerkr
+COPY ./pw.txt ./
+RUN chpasswd < pw.txt
+RUN rm pw.txt
+
+RUN mkdir /home/lannerkr/.ssh
+RUN chown lannerkr:lannerkr /home/lannerkr/.ssh
+
+RUN sudo -H -u lannerkr bash -c "ssh-keygen -q -t rsa -N '' -f /home/lannerkr/.ssh/id_rsa"
+
+WORKDIR /usr/local/witty
+
+COPY ./firstrun.sh ./
+
+RUN /usr/local/witty/firstrun.sh
+
+ENTRYPOINT ["./witty", "run", "&"]
