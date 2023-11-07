@@ -22,14 +22,21 @@ func (reg *Registry) init() {
 }
 
 func (d *Registry) addPlayer(tc *TermConn) {
+	//log.Println("addPlayer 001")
 	d.mtx.Lock()
+	//log.Println("addPlayer 002")
 	if _, ok := d.players[tc.Name]; ok {
+		//log.Println("addPlayer 003")
 		log.Println(tc.Name, "Already exist in the dispatcher, skip registration")
 	} else {
+		//log.Println("addPlayer 004")
+		log.Printf("addPlayer tc.Name : %v\n", tc.Name)
 		d.players[tc.Name] = tc
 		log.Println("Add interactive session to registry", tc.Name)
 	}
+	//log.Println("addPlayer 005")
 	d.mtx.Unlock()
+	//log.Println("addPlayer 006")
 }
 
 func (d *Registry) removePlayer(name string) error {
@@ -53,6 +60,19 @@ func (d *Registry) sendToPlayer(name string, ws *websocket.Conn) bool {
 
 	if ok {
 		tc.viewChan <- ws
+	}
+
+	d.mtx.Unlock()
+	return ok
+}
+
+// Send a command to the session to start, stop recording
+func (d *Registry) recordSession(id string, cmd int) bool {
+	d.mtx.Lock()
+	tc, ok := d.players[id]
+
+	if ok {
+		tc.recordChan <- cmd
 	}
 
 	d.mtx.Unlock()

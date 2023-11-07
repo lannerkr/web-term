@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -78,9 +79,7 @@ type WriteRecord struct {
 
 func (tc *TermConn) createPty(cmdline []string) error {
 	// Create a shell command.
-	//log.Panicf("[TestDebug003] : %v\n", cmdline)
 	cmd := exec.Command(cmdline[0], cmdline[1:]...)
-	//cmd := exec.Command("sudo", "-H -u lannerkr ssh oci.physis.mooo.com")
 
 	// Start the command with a pty.
 	ptmx, err := pty.Start(cmd)
@@ -167,6 +166,8 @@ func (tc *TermConn) wsToPtyStdin(wg *sync.WaitGroup) {
 			bufChan <- buf
 		}
 	}()
+
+	//log.Println(actions)
 	// we do not need to forward user input to viewers, only the stdout
 out:
 	for {
@@ -195,8 +196,9 @@ out:
 }
 
 // shovel data from pty Stdout to WS
-func (tc *TermConn) ptyStdoutToWs(wg *sync.WaitGroup) {
+func (tc *TermConn) ptyStdoutToWs(wg *sync.WaitGroup, actions []string) {
 	var viewers []*websocket.Conn
+	var initcom bool = true
 
 	defer wg.Done()
 	bufChan := make(chan []byte)
@@ -236,6 +238,12 @@ out:
 			if err := tc.ws.WriteMessage(websocket.BinaryMessage, buf); err != nil {
 				log.Println("Failed to write message: ", err)
 				break out
+			}
+
+			if initcom && strings.Contains(string(buf), actions[0]) {
+				bufInit := []byte(actions[1] + "\n")
+				tc.ptmx.Write(bufInit)
+				initcom = false
 			}
 
 			//write to the viewer
@@ -364,7 +372,7 @@ func (tc *TermConn) release() {
 }
 
 // handle websockets
-func handlePlayer(w http.ResponseWriter, r *http.Request, name string, cmdline []string) {
+func handlePlayer(w http.ResponseWriter, r *http.Request, name string, cmdline []string, actions []string) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
@@ -386,11 +394,13 @@ func handlePlayer(w http.ResponseWriter, r *http.Request, name string, cmdline [
 	tc.viewChan = make(chan *websocket.Conn)
 	tc.recordChan = make(chan int)
 
+	//log.Println("let's create Pty")
 	if err := tc.createPty(cmdline); err != nil {
 		log.Println("Failed to create PTY: ", err)
 		return
 	}
 
+	//log.Println("let's add Player")
 	registry.addPlayer(&tc)
 
 	// main event loop to shovel data between ws and pty
@@ -401,7 +411,7 @@ func handlePlayer(w http.ResponseWriter, r *http.Request, name string, cmdline [
 	wg.Add(3)
 
 	go tc.ping(&wg)
-	go tc.ptyStdoutToWs(&wg)
+	go tc.ptyStdoutToWs(&wg, actions)
 	go tc.wsToPtyStdin(&wg)
 
 	wg.Wait()
@@ -424,9 +434,9 @@ func handleViewer(w http.ResponseWriter, r *http.Request, path string) {
 	}
 }
 
-func ConnectTerm(w http.ResponseWriter, r *http.Request, isViewer bool, name string, cmdline []string) {
+func ConnectTerm(w http.ResponseWriter, r *http.Request, isViewer bool, name string, cmdline []string, actions []string) {
 	if !isViewer {
-		handlePlayer(w, r, name, cmdline)
+		handlePlayer(w, r, name, cmdline, actions)
 	} else {
 		handleViewer(w, r, name)
 	}
@@ -436,10 +446,10 @@ func Init() {
 	registry.init()
 }
 
-// func StartRecord(id string) {
-// 	registry.recordSession(id, recordCmd)
-// }
+func StartRecord(id string) {
+	registry.recordSession(id, recordCmd)
+}
 
-// func StopRecord(id string) {
-// 	registry.recordSession(id, stopCmd)
-// }
+func StopRecord(id string) {
+	registry.recordSession(id, stopCmd)
+}

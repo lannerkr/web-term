@@ -27,6 +27,7 @@ type Session struct {
 	Pwd     []byte
 	KeyPath string
 	Usepwd  bool
+	Actions []string
 }
 type SessionID struct {
 	Gid int

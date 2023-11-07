@@ -105,6 +105,22 @@ input {
                         <td><input type = "password" name = "password" value=""><br><br></td>
                         {{end}}
                     </tr>
+                    {{$a0 := ""}}
+                    {{$a1 := ""}}
+                    {{ range $i, $s := .actions}}
+                    {{ if eq $i 0}} {{ $a0 = $s}} {{end}}
+                    {{ if eq $i 1}} {{ $a1 = $s}} {{end}}
+                    {{end}}
+                    <tr>
+                        <td>Actions Wait : <br><br></td>
+                        <td><input type = "text" name = "actionw" value="{{$a0}}"><br><br></td>
+                    </tr>
+
+                    <tr>
+                        <td>Actions Do : <br><br></td>
+                        <td><input type = "text" name = "actiond" value="{{$a1}}"><br><br></td>
+                    </tr>
+                    
 
                 </table>
             </fieldset> 

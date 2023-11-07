@@ -14,7 +14,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/csrf"
 	adapter "github.com/gwatts/gin-adapter"
-	"github.com/syssecfsu/witty/term_conn"
+
+	//"github.com/syssecfsu/witty/term_conn"
+	"lannerkr/witty/term_conn"
 )
 
 type Options struct {
@@ -121,13 +123,15 @@ func StartWeb(opt *Options) {
 }
 
 type NewSess struct {
-	Gname string `form:"gname"`
-	Sname string `form:"sname"`
-	Host  string `form:"host"`
-	Port  string `form:"port"`
-	User  string `form:"user"`
-	Pwd   string `form:"password"`
-	Pkey  string `form:"pkey"`
+	Gname   string `form:"gname"`
+	Sname   string `form:"sname"`
+	Host    string `form:"host"`
+	Port    string `form:"port"`
+	User    string `form:"user"`
+	Pwd     string `form:"password"`
+	Pkey    string `form:"pkey"`
+	Actionw string `form:"actionw"`
+	Actiond string `form:"actiond"`
 }
 
 func newSessPostHandler(c *gin.Context) {
@@ -180,6 +184,8 @@ func updateConfig(s *NewSess) {
 	newSession.User = s.User
 	newSession.Pwd = newPwd
 	newSession.KeyPath = s.Pkey
+	newSession.Actions = append(newSession.Actions, s.Actionw)
+	newSession.Actions = append(newSession.Actions, s.Actiond)
 
 	var result Group
 	getConfig(&result)
@@ -234,6 +240,8 @@ func editConfig(s *NewSess, gid, sid int) {
 	newSession.KeyPath = s.Pkey
 	newSession.Id.Gid = gid
 	newSession.Id.Sid = sid
+	newSession.Actions = append(newSession.Actions, s.Actionw)
+	newSession.Actions = append(newSession.Actions, s.Actiond)
 
 	var result Group
 	getConfig(&result)
@@ -333,6 +341,7 @@ func editSessHandler(c *gin.Context) {
 	//fmt.Printf("%v : %v\n", gid, sid)
 	groupname := result.Groups[gid].Gname
 	session := result.Groups[gid].Sessions[sid]
+	actions := result.Groups[gid].Sessions[sid].Actions
 	//pid := fmt.Sprintln(session.Usepwd)
 
 	c.HTML(http.StatusOK, "editSession.html",
@@ -341,6 +350,7 @@ func editSessHandler(c *gin.Context) {
 			"csrfToken": csrf.Token(c.Request),
 			"group":     groupname,
 			"session":   session,
+			"actions":   actions,
 			"gid":       gid,
 			"sid":       sid,
 		})

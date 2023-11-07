@@ -8,7 +8,9 @@ import (
 	"github.com/dchest/uniuri"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/csrf"
-	"github.com/syssecfsu/witty/term_conn"
+
+	//"github.com/syssecfsu/witty/term_conn"
+	"lannerkr/witty/term_conn"
 )
 
 type InteractiveSession struct {
@@ -101,22 +103,35 @@ func newInteractive(c *gin.Context) {
 }
 
 func newTermConn(c *gin.Context) {
+	//var actions *[]string
+	actions := []string{"", ""}
+	//fmt.Printf("000.actions: %v\n", *actions)
 	id := c.Param("id")
 	if strings.Contains(id, ":") {
 		str := strings.Split(id, ":")
 		if str[1] == "newsessionupdate" {
 			options.CmdToExec = []string{"ssh-copy-id"}
 		}
-		//fmt.Printf("newTermconn: %v\n", options.CmdToExec)
-		updateCmd(c, str[0])
+		fmt.Printf("001.actions: %v\n", actions)
+		updateCmd(c, str[0], &actions)
+		fmt.Printf("003.actions: %v\n", actions)
 
 	} else {
 		options.CmdToExec = []string{"sudo", "-H", "-u", "lannerkr", "bash"}
 	}
 
-	term_conn.ConnectTerm(c.Writer, c.Request, false, id, options.CmdToExec)
+	//actions := []string{"$", "ls -l"}
+	//updateaction(&actions)
+
+	term_conn.ConnectTerm(c.Writer, c.Request, false, id, options.CmdToExec, actions)
 }
-func updateCmd(c *gin.Context, id string) {
+
+//	func updateaction(action *[]string) {
+//		fmt.Printf("actions from update1 : %v\n", *action)
+//		*action = []string{"#", "pwd"}
+//		fmt.Printf("actions from update2 : %v\n", *action)
+//	}
+func updateCmd(c *gin.Context, id string, action *[]string) {
 
 	var result Group
 	getConfig(&result)
@@ -125,6 +140,8 @@ LOOP:
 		for _, v := range g.Sessions {
 			//fmt.Println(id)
 			if id == v.Name {
+
+				//fmt.Printf("002.actions: %v\n", *actions)
 				if v.Usepwd {
 					fmt.Println("USE PWD is TRUE ...")
 					newpwd, err := decrypt(v.Pwd)
@@ -134,6 +151,7 @@ LOOP:
 					}
 					//fmt.Printf("decrypted pwd : %v\n", string(newpwd))
 					options.CmdToExec = []string{"sudo", "-H", "-u", "lannerkr", "sshpass", "-p", string(newpwd), "ssh", "-l", v.User, "-p", v.Port, v.Host}
+					*action = v.Actions
 					break LOOP
 				}
 			NEXT:
@@ -143,11 +161,15 @@ LOOP:
 					break LOOP
 				}
 				options.CmdToExec = []string{"sudo", "-H", "-u", "lannerkr", "ssh", "-l", v.User, "-p", v.Port, "-i", v.KeyPath, v.Host}
+				*action = v.Actions
 				break LOOP
 			}
 		}
 	}
-	//fmt.Printf("updateCmd: %v\n", options.CmdToExec)
+	// fmt.Printf("updateCmd: %v\n", options.CmdToExec)
+	// newStr := []string{"\n", "ls", "-l"}
+	// options.CmdToExec = append(options.CmdToExec, newStr...)
+	// fmt.Printf("updateCmd: %v\n", options.CmdToExec)
 
 	// if id == "oci" {
 	// 	options.CmdToExec = []string{"sudo", "-H", "-u", "lannerkr", "ssh", "lannerkr@oci.physis.mooo.com"}
@@ -171,5 +193,5 @@ func viewPage(c *gin.Context) {
 
 func newViewWS(c *gin.Context) {
 	id := c.Param("id")
-	term_conn.ConnectTerm(c.Writer, c.Request, true, id, nil)
+	term_conn.ConnectTerm(c.Writer, c.Request, true, id, nil, nil)
 }
